@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import excedentes
+from app.routers import excedentes, empresas, ongs
 
 load_dotenv()
 
@@ -17,6 +18,8 @@ app.add_middleware(
 )
 
 app.include_router(excedentes.router)
+app.include_router(empresas.router)
+app.include_router(ongs.router)
 
 @app.get("/")
 def root():
