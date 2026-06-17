@@ -3,13 +3,11 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
-from app.models import excedente, empresa, ong, transferencia
-from app.routers import excedente_router, empresa_router, ong_router
 from app.models import excedente, empresa, ong, transferencia, usuario
-
+from app.routers import excedente_router, empresa_router, ong_router, auth_router
 
 load_dotenv()
-REGION = os.getenv("REGION", "lima")
+REGION = os.getenv("REGION", "trujillo")
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,6 +24,7 @@ app.add_middleware(
 app.include_router(excedente_router.router)
 app.include_router(empresa_router.router)
 app.include_router(ong_router.router)
+app.include_router(auth_router.router)
 
 @app.get("/")
 def root():
