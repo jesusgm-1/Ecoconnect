@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.models import excedente, empresa, ong, transferencia
 from app.routers import excedente_router, empresa_router, ong_router
+from app.models import excedente, empresa, ong, transferencia, usuario
 
 load_dotenv()
 REGION = os.getenv("REGION", "lima")
