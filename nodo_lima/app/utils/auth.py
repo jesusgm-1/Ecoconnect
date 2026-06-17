@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 import os
 from dotenv import load_dotenv
 
@@ -10,13 +10,11 @@ SECRET_KEY = os.getenv("SECRET_KEY", "ecoconnect_secret_2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def hashear_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 def verificar_password(password: str, hash: str) -> bool:
-    return pwd_context.verify(password, hash)
+    return bcrypt.checkpw(password.encode("utf-8"), hash.encode("utf-8"))
 
 def crear_token(data: dict) -> str:
     datos = data.copy()
