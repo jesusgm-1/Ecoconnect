@@ -2,8 +2,7 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import excedentes
-from app.routers import excedentes, empresas, ongs
+from app.routers import excedentes, empresas, ongs, auth
 
 load_dotenv()
 
@@ -17,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(excedentes.router)
 app.include_router(empresas.router)
 app.include_router(ongs.router)
