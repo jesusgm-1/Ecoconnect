@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: ecoconnect_db
+    environment:
+      POSTGRES_USER: ecouser
+      POSTGRES_PASSWORD: ecopassword
+      POSTGRES_DB: ecoconnect
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - eco_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecouser -d ecoconnect"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    image: rabbitmq:3-management
+    container_name: ecoconnect_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - eco_network
+
+  nodo_lima:
+    build:
+      context: ./nodo_lima
+      dockerfile: Dockerfile
+    container_name: ecoconnect_nodo_lima
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REGION=lima
+      - SECRET_KEY=ecoconnect_secret_2026
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - eco_network
+
+  nodo_arequipa:
+    build:
+      context: ./nodo_arequipa
+      dockerfile: Dockerfile
+    container_name: ecoconnect_nodo_arequipa
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REGION=arequipa
+      - SECRET_KEY=ecoconnect_secret_2026
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - eco_network
+
+  nodo_trujillo:
+    build:
+      context: ./nodo_trujillo
+      dockerfile: Dockerfile
+    container_name: ecoconnect_nodo_trujillo
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - REGION=trujillo
+      - SECRET_KEY=ecoconnect_secret_2026
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - eco_network
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: ecoconnect_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - NODO_LIMA=http://nodo_lima:8001
+      - NODO_AREQUIPA=http://nodo_arequipa:8002
+      - NODO_TRUJILLO=http://nodo_trujillo:8003
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - nodo_lima
+      - nodo_arequipa
+      - nodo_trujillo
+    networks:
+      - eco_network
+
+  notificaciones:
+    build:
+      context: ./notificaciones
+      dockerfile: Dockerfile
+    container_name: ecoconnect_notificaciones
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - eco_network
+
+  frontend:
+    build:
+      context: ./fronted
+      dockerfile: Dockerfile
+    container_name: ecoconnect_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_GATEWAY_URL=http://localhost:8000
+    depends_on:
+      - gateway
+    networks:
+      - eco_network
+
+networks:
+  eco_network:
+    driver: bridge
+
+volumes:
+  pgdata:
