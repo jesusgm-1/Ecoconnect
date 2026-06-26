@@ -55,11 +55,11 @@ const OngFeed = () => {
                                     <p><strong>Ubicación:</strong> {exc.ubicacion}</p>
                                     <p><strong>Fecha Límite:</strong> {new Date(exc.fecha_limite).toLocaleDateString()}</p>
                                     <p style={{ fontSize: '0.8rem', color: '#666' }}>
-                                        Publicado: {new Date(exc.fecha_registro || Date.now()).toLocaleDateString()}
+                                        Publicado: {new Date(exc.fecha_registro || new Date()).toLocaleDateString()}
                                     </p>
                                 </div>
                                 <div style={styles.cardFooter}>
-                                    <Link to={/ong/reclamar/} style={styles.reclamarBtn}>
+                                    <Link to={`/ong/reclamar/${exc.id}`} style={styles.reclamarBtn}>
                                         Reclamar
                                     </Link>
                                 </div>
