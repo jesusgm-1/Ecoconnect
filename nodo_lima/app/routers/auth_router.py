@@ -12,18 +12,53 @@ def registro(datos: RegistroRequest, db: Session = Depends(get_db)):
     existente = db.query(Usuario).filter(Usuario.email == datos.email).first()
     if existente:
         raise HTTPException(status_code=400, detail="Email ya registrado")
+
+    empresa_id = datos.empresa_id
+    ong_id = datos.ong_id
+
+    if datos.rol == "empresa" and not empresa_id:
+        from app.models.empresa import Empresa
+        nueva_empresa = Empresa(
+            nombre=datos.nombre or datos.email.split("@")[0],
+            ruc=datos.ruc or "00000000000",
+            email=datos.email,
+            region=datos.region
+        )
+        db.add(nueva_empresa)
+        db.flush()
+        empresa_id = nueva_empresa.id
+
+    if datos.rol == "ong" and not ong_id:
+        from app.models.ong import ONG
+        nueva_ong = ONG(
+            nombre=datos.nombre or datos.email.split("@")[0],
+            email=datos.email,
+            region=datos.region,
+            verificada=True
+        )
+        db.add(nueva_ong)
+        db.flush()
+        ong_id = nueva_ong.id
+
     usuario = Usuario(
         email=datos.email,
         password_hash=hashear_password(datos.password),
         rol=datos.rol,
         region=datos.region,
-        empresa_id=datos.empresa_id,
-        ong_id=datos.ong_id
+        empresa_id=empresa_id,
+        ong_id=ong_id
     )
     db.add(usuario)
     db.commit()
     db.refresh(usuario)
-    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region, "empresa_id": usuario.empresa_id, "ong_id": usuario.ong_id})
+
+    token = crear_token({
+        "sub": usuario.email,
+        "rol": usuario.rol,
+        "region": usuario.region,
+        "empresa_id": usuario.empresa_id,
+        "ong_id": usuario.ong_id
+    })
     return TokenResponse(access_token=token, rol=usuario.rol, region=usuario.region)
 
 @router.post("/login", response_model=TokenResponse)
@@ -31,5 +66,11 @@ def login(datos: LoginRequest, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.email == datos.email).first()
     if not usuario or not verificar_password(datos.password, usuario.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region, "empresa_id": usuario.empresa_id, "ong_id": usuario.ong_id})
+    token = crear_token({
+        "sub": usuario.email,
+        "rol": usuario.rol,
+        "region": usuario.region,
+        "empresa_id": usuario.empresa_id,
+        "ong_id": usuario.ong_id
+    })
     return TokenResponse(access_token=token, rol=usuario.rol, region=usuario.region)

@@ -11,6 +11,8 @@ class RegistroRequest(BaseModel):
     password: str
     rol: RolUsuario
     region: str = "arequipa"
+    nombre: str = None
+    ruc: str = None
     empresa_id: int = None
     ong_id: int = None
 

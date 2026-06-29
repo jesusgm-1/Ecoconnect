@@ -23,6 +23,8 @@ const PublicarExcedente = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Usuario actual:", user);
+        console.log("empresa_id:", user?.empresa_id);
         setLoading(true);
         setError('');
 
