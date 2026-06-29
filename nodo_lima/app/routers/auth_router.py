@@ -23,7 +23,7 @@ def registro(datos: RegistroRequest, db: Session = Depends(get_db)):
     db.add(usuario)
     db.commit()
     db.refresh(usuario)
-    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region})
+    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region, "empresa_id": usuario.empresa_id, "ong_id": usuario.ong_id})
     return TokenResponse(access_token=token, rol=usuario.rol, region=usuario.region)
 
 @router.post("/login", response_model=TokenResponse)
@@ -31,5 +31,5 @@ def login(datos: LoginRequest, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.email == datos.email).first()
     if not usuario or not verificar_password(datos.password, usuario.password_hash):
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region})
+    token = crear_token({"sub": usuario.email, "rol": usuario.rol, "region": usuario.region, "empresa_id": usuario.empresa_id, "ong_id": usuario.ong_id})
     return TokenResponse(access_token=token, rol=usuario.rol, region=usuario.region)
