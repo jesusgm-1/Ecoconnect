@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { excedentesAPI } from '../../services/api';
 
 const PublicarExcedente = () => {
@@ -10,9 +10,9 @@ const PublicarExcedente = () => {
     const [error, setError] = useState('');
 
     const [formData, setFormData] = useState({
-        tipo_recurso: 'Alimentos', // Alimentos, Materiales, Ropa, etc.
+        tipo_recurso: 'Alimentos',
         cantidad: '',
-        unidad: 'kg', // kg, unidades, litros
+        unidad: 'kg',
         fecha_limite: '',
         ubicacion: '',
     });
@@ -30,16 +30,19 @@ const PublicarExcedente = () => {
             const payload = {
                 ...formData,
                 cantidad: parseFloat(formData.cantidad),
-                estado: 'disponible', // Estado inicial por defecto
-                // Empresa_id debe ser extraída en el backend del token JWT o enviada.
-                // Como el token tiene toda la info, el backend lo leerá de la autorización.
+                estado: 'disponible',
             };
 
-            await excedentesAPI.crear(user.region, payload);
+            const region = user?.region?.toLowerCase();
+            if (!region) {
+                throw new Error('No se pudo determinar la región del usuario autenticado');
+            }
+
+            await excedentesAPI.crear(region, payload);
             alert('Excedente publicado exitosamente');
             navigate('/empresa/dashboard');
         } catch (err) {
-            console.error("Error al publicar:", err);
+            console.error('Error al publicar:', err);
             setError(err.response?.data?.detail || 'Error al publicar el excedente.');
         } finally {
             setLoading(false);
@@ -51,7 +54,7 @@ const PublicarExcedente = () => {
             <div style={styles.card}>
                 <h2>Publicar Nuevo Excedente</h2>
                 <p>Completa los datos del recurso que deseas poner a disposición.</p>
-                
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 <form onSubmit={handleSubmit} style={styles.form}>
@@ -69,15 +72,15 @@ const PublicarExcedente = () => {
                     <div style={{ display: 'flex', gap: '1rem' }}>
                         <div style={{ ...styles.inputGroup, flex: 1 }}>
                             <label>Cantidad</label>
-                            <input 
-                                type="number" 
-                                name="cantidad" 
-                                min="0.1" 
+                            <input
+                                type="number"
+                                name="cantidad"
+                                min="0.1"
                                 step="any"
-                                value={formData.cantidad} 
-                                onChange={handleChange} 
-                                required 
-                                style={styles.input} 
+                                value={formData.cantidad}
+                                onChange={handleChange}
+                                required
+                                style={styles.input}
                             />
                         </div>
                         <div style={{ ...styles.inputGroup, flex: 1 }}>
@@ -92,27 +95,27 @@ const PublicarExcedente = () => {
 
                     <div style={styles.inputGroup}>
                         <label>Fecha Límite</label>
-                        <input 
-                            type="datetime-local" 
-                            name="fecha_limite" 
-                            value={formData.fecha_limite} 
-                            onChange={handleChange} 
-                            required 
-                            style={styles.input} 
+                        <input
+                            type="datetime-local"
+                            name="fecha_limite"
+                            value={formData.fecha_limite}
+                            onChange={handleChange}
+                            required
+                            style={styles.input}
                         />
-                        <small style={{ color: '#666' }}>Feche en la que el recurso expira o dejará de estar disponible.</small>
+                        <small style={{ color: '#666' }}>Fecha en la que el recurso expira o dejará de estar disponible.</small>
                     </div>
 
                     <div style={styles.inputGroup}>
                         <label>Ubicación Específica</label>
-                        <input 
-                            type="text" 
-                            name="ubicacion" 
+                        <input
+                            type="text"
+                            name="ubicacion"
                             placeholder="Ej. Almacén Central, Zona A"
-                            value={formData.ubicacion} 
-                            onChange={handleChange} 
-                            required 
-                            style={styles.input} 
+                            value={formData.ubicacion}
+                            onChange={handleChange}
+                            required
+                            style={styles.input}
                         />
                     </div>
 

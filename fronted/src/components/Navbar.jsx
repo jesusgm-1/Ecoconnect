@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -15,26 +15,26 @@ const Navbar = () => {
             <div style={styles.brand}>
                 <Link to="/" style={styles.link}>Eco-Connect</Link>
             </div>
-            
+
             {user && (
                 <div style={styles.links}>
                     <span style={styles.userInfo}>Hola, {user.email} ({user.rol})</span>
-                    
+
                     {user.rol === 'empresa' && (
                         <>
                             <Link to="/empresa/dashboard" style={styles.link}>Mis Excedentes</Link>
                             <Link to="/empresa/publicar" style={styles.link}>Publicar Excedente</Link>
                         </>
                     )}
-                    
+
                     {user.rol === 'ong' && (
                         <Link to="/ong/feed" style={styles.link}>Feed Disponibles</Link>
                     )}
-                    
+
                     {user.rol === 'admin' && (
                         <Link to="/admin/dashboard" style={styles.link}>Panel Admin</Link>
                     )}
-                    
+
                     <button onClick={handleLogout} style={styles.logoutBtn}>Cerrar Sesión</button>
                 </div>
             )}
@@ -48,7 +48,7 @@ const styles = {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '1rem 2rem',
-        backgroundColor: '#2e7d32', // Verde eco
+        backgroundColor: '#2e7d32',
         color: '#fff'
     },
     brand: {

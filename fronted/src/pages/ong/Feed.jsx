@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { excedentesAPI } from '../../services/api';
 import { Link } from 'react-router-dom';
 
@@ -12,13 +12,16 @@ const OngFeed = () => {
     useEffect(() => {
         const fetchExcedentes = async () => {
             try {
-                // Buscamos los excedentes de la región de la ONG logueada
-                const data = await excedentesAPI.listar(user.region);
-                
-                // Filtramos SOLO los excedentes que estén "disponibles"
-                // y que no estén vencidos para mostrar en el feed publico
-                const disponibles = data.filter(e => e.estado === 'disponible');
-                setExcedentes(disponibles); 
+                const region = user?.region?.toLowerCase();
+                if (!region) {
+                    throw new Error('No se pudo determinar la región del usuario autenticado');
+                }
+
+                const data = await excedentesAPI.listar(region);
+                const disponibles = Array.isArray(data)
+                    ? data.filter((e) => e.estado === 'disponible')
+                    : [];
+                setExcedentes(disponibles);
             } catch (err) {
                 console.error(err);
                 setError('No se pudieron cargar los excedentes disponibles.');
@@ -27,7 +30,7 @@ const OngFeed = () => {
             }
         };
 
-        if (user) {
+        if (user?.region) {
             fetchExcedentes();
         }
     }, [user]);
@@ -37,7 +40,7 @@ const OngFeed = () => {
 
     return (
         <div>
-            <h2>Feed de Excedentes ({user.region.toUpperCase()})</h2>
+            <h2>Feed de Excedentes ({user?.region?.toUpperCase()})</h2>
             <p>Aquí puedes ver los recursos que las empresas han puesto a disposición.</p>
 
             <div style={{ marginTop: '2rem' }}>

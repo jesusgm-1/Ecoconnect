@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { excedentesAPI } from '../../services/api';
 import { Link } from 'react-router-dom';
 
@@ -12,15 +12,13 @@ const EmpresaDashboard = () => {
     useEffect(() => {
         const fetchExcedentes = async () => {
             try {
-                // Buscamos los excedentes de la región del usuario logueado
-                const data = await excedentesAPI.listar(user.region);
-                
-                // Filtramos para que la empresa solo vea SUS excedentes
-                // Asumiendo que el backend devuelve { id, empresa_id, tipo_recurso... } 
-                // En un caso real el backend debería filtrar esto por el token del usuario
-                // pero lo haremos aquí preventivamente.
-                // *Nota:* Necesitaríamos que el token devuelva el empresa_id o filtrar en el backend.
-                setExcedentes(data); 
+                const region = user?.region?.toLowerCase();
+                if (!region) {
+                    throw new Error('No se pudo determinar la región del usuario autenticado');
+                }
+
+                const data = await excedentesAPI.listar(region);
+                setExcedentes(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error(err);
                 setError('No se pudieron cargar los excedentes');
@@ -29,7 +27,7 @@ const EmpresaDashboard = () => {
             }
         };
 
-        if (user) {
+        if (user?.region) {
             fetchExcedentes();
         }
     }, [user]);
@@ -40,7 +38,7 @@ const EmpresaDashboard = () => {
     return (
         <div>
             <h2>Dashboard de Empresa</h2>
-            <p>Bienvenido. Región actual: <strong>{user.region.toUpperCase()}</strong></p>
+            <p>Bienvenido. Región actual: <strong>{user?.region?.toUpperCase()}</strong></p>
 
             <div style={{ marginTop: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -86,14 +84,15 @@ const EmpresaDashboard = () => {
 };
 
 const getEstadoStyle = (estado) => {
-    let color = '#ccc';
-    switch(estado) {
-        case 'disponible': color = '#4caf50'; break;
-        case 'transferido': color = '#2196f3'; break;
-        case 'bloqueado': color = '#ff9800'; break;
-        case 'vencido': color = '#f44336'; break;
-        default: color = '#999';
-    }
+    const colorMap = {
+        disponible: '#4caf50',
+        transferido: '#2196f3',
+        bloqueado: '#ff9800',
+        vencido: '#f44336'
+    };
+
+    const color = colorMap[estado] ?? '#999';
+
     return {
         backgroundColor: color,
         color: 'white',
@@ -130,7 +129,7 @@ const styles = {
         borderBottom: '1px solid #ddd'
     },
     td: {
-        padding: '1rem',
+        padding: '1rem'
     }
 };
 

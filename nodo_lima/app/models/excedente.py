@@ -19,7 +19,7 @@ class Excedente(Base):
     unidad = Column(String, nullable=False)
     fecha_limite = Column(DateTime, nullable=False)
     ubicacion = Column(String, nullable=False)
-    estado = Column(Enum(EstadoExcedente), default=EstadoExcedente.disponible)
+    estado = Column(Enum(EstadoExcedente, name="estadoexcedente", create_type=False), default=EstadoExcedente.disponible)
     fecha_registro = Column(DateTime, default=datetime.utcnow)
 
     empresa_id = Column(Integer, ForeignKey("empresas.id"))

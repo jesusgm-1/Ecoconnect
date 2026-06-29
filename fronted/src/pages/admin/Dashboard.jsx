@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import { excedentesAPI } from "../../services/api";
 import {
   BarChart,
@@ -30,19 +30,23 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        // El admin también trae data de su nodo (o de todos si la API lo permite)
-        // Por ahora usamos el endpoint listar normal y agrupamos data en el frontend.
-        const allData = await excedentesAPI.listar(user.region);
+        const region = user?.region?.toLowerCase();
+        if (!region) {
+          throw new Error(
+            "No se pudo determinar la región del usuario autenticado",
+          );
+        }
 
-        // Métrica 1: Kilos totales salvados (asumiremos que todo es KG para la demo o filtramos por unidad='kg')
-        const transferidos = allData.filter((e) => e.estado === "transferido");
+        const allData = await excedentesAPI.listar(region);
+        const items = Array.isArray(allData) ? allData : [];
+
+        const transferidos = items.filter((e) => e.estado === "transferido");
         const kgSalvados = transferidos.reduce(
           (acc, curr) => acc + (curr.unidad === "kg" ? curr.cantidad : 0),
           0,
         );
 
-        // Métrica 2: Cantidad por estado
-        const estadosCount = allData.reduce((acc, curr) => {
+        const estadosCount = items.reduce((acc, curr) => {
           acc[curr.estado] = (acc[curr.estado] || 0) + 1;
           return acc;
         }, {});
@@ -51,8 +55,7 @@ const AdminDashboard = () => {
           value: estadosCount[k],
         }));
 
-        // Métrica 3: Cantidad por Tipo
-        const tipoCount = allData.reduce((acc, curr) => {
+        const tipoCount = items.reduce((acc, curr) => {
           acc[curr.tipo_recurso] = (acc[curr.tipo_recurso] || 0) + 1;
           return acc;
         }, {});
@@ -63,7 +66,7 @@ const AdminDashboard = () => {
 
         setStats({
           totalKg: kgSalvados,
-          totalExcedentes: allData.length,
+          totalExcedentes: items.length,
           estadoData,
           tipoData,
         });
@@ -74,14 +77,16 @@ const AdminDashboard = () => {
       }
     };
 
-    if (user) fetchMetrics();
+    if (user?.region) {
+      fetchMetrics();
+    }
   }, [user]);
 
   if (loading) return <div>Generando métricas del sistema...</div>;
 
   return (
     <div>
-      <h2>Panel de Administrador - {user.region.toUpperCase()}</h2>
+      <h2>Panel de Administrador - {user?.region?.toUpperCase()}</h2>
       <p>
         Métricas en tiempo real sobre la economía circular en tu nodo regional.
       </p>
@@ -100,7 +105,6 @@ const AdminDashboard = () => {
       </div>
 
       <div style={styles.chartsContainer}>
-        {/* Gráfico de Barras: Tipos de Recursos */}
         <div style={styles.chartBox}>
           <h3 style={{ textAlign: "center", marginBottom: "1rem" }}>
             Publicaciones por Tipo
@@ -119,7 +123,6 @@ const AdminDashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico Circular: Estados de Excedentes */}
         <div style={styles.chartBox}>
           <h3 style={{ textAlign: "center", marginBottom: "1rem" }}>
             Estado Actual de Excedentes

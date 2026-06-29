@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { excedentesAPI } from '../../services/api';
 
 const OngReclamar = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    
+
     const [excedente, setExcedente] = useState(null);
     const [loading, setLoading] = useState(true);
     const [claiming, setClaiming] = useState(false);
@@ -16,13 +16,16 @@ const OngReclamar = () => {
     useEffect(() => {
         const fetchDetalle = async () => {
             try {
-                // Al hacer el GET de toda la lista, buscamos el que coincida con el ID
-                // Ya que tu gateway actualmente no tiene implementado (o no documentado) 
-                // el endpoint GET /excedentes/{region}/{id} en la API de servicios,
-                // vamos a buscar la lista y filtrar por id.
-                const data = await excedentesAPI.listar(user.region);
-                const actual = data.find(e => e.id.toString() === id);
-                
+                const region = user?.region?.toLowerCase();
+                if (!region) {
+                    throw new Error('No se pudo determinar la región del usuario autenticado');
+                }
+
+                const data = await excedentesAPI.listar(region);
+                const actual = Array.isArray(data)
+                    ? data.find((e) => e.id.toString() === id)
+                    : null;
+
                 if (actual && actual.estado === 'disponible') {
                     setExcedente(actual);
                 } else {
@@ -36,26 +39,20 @@ const OngReclamar = () => {
             }
         };
 
-        if (user) fetchDetalle();
+        if (user?.region) fetchDetalle();
     }, [id, user]);
 
     const handleConfirmar = async () => {
         setClaiming(true);
         setError('');
         try {
-            // Actualmente la api pide (region, excedenteId, ongId)
-            // Asumimos que como el user decodifica y el backend saca el ID del token,
-            // podemos pasar un fake_id o sacar ong_id del token si esta, de lo contrario
-            // asumo que en auth tu token guardaba "email". Pongamos un id provisorio (ej 1)
-            // IMPORTANTE: el jwt debe tener el user.id o ong.id para que funcione real. 
-            // Tu API gateway tiene: /excedentes/{region}/{excedente_id}/reclamar?ong_id={ong_id}
-            
-            // Asumimos que el backend obtiene el auth o mandas el id, por ahora envio 1
-            // si user.id no existe (modificar luego si lo metes al token).
-            const ongID = user.id || 1; 
+            const ongID = user.id || 1;
+            const region = user?.region?.toLowerCase();
+            if (!region) {
+                throw new Error('No se pudo determinar la región del usuario autenticado');
+            }
 
-            await excedentesAPI.reclamar(user.region, id, ongID);
-            
+            await excedentesAPI.reclamar(region, id, ongID);
             alert('¡Excedente reclamado exitosamente!');
             navigate('/ong/feed');
         } catch (err) {
@@ -75,7 +72,7 @@ const OngReclamar = () => {
             <div style={styles.card}>
                 <h2>Confirmar Reclamo</h2>
                 <p>Estás a punto de confirmar tu interés en recoger el siguiente recurso:</p>
-                
+
                 <div style={styles.detailBox}>
                     <p><strong>Tipo:</strong> {excedente.tipo_recurso}</p>
                     <p><strong>Cantidad a recibir:</strong> {excedente.cantidad} {excedente.unidad}</p>
@@ -88,15 +85,15 @@ const OngReclamar = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                    <button 
-                        onClick={() => navigate('/ong/feed')} 
+                    <button
+                        onClick={() => navigate('/ong/feed')}
                         style={styles.cancelBtn}
                         disabled={claiming}
                     >
                         Volver
                     </button>
-                    <button 
-                        onClick={handleConfirmar} 
+                    <button
+                        onClick={handleConfirmar}
                         style={styles.submitBtn}
                         disabled={claiming}
                     >
@@ -142,7 +139,7 @@ const styles = {
     submitBtn: {
         flex: 1,
         padding: '0.75rem',
-        backgroundColor: '#1976d2', // Azul
+        backgroundColor: '#1976d2',
         color: '#fff',
         border: 'none',
         borderRadius: '4px',

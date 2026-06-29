@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { authAPI } from '../services/api';
 
 const Login = () => {
@@ -9,11 +9,10 @@ const Login = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    // Form states
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [region, setRegion] = useState('lima');
-    const [rol, setRol] = useState('empresa'); // 'empresa' o 'ong'
+    const [rol, setRol] = useState('empresa');
     const [nombre, setNombre] = useState('');
     const [ruc, setRuc] = useState('');
 
@@ -23,39 +22,30 @@ const Login = () => {
 
         try {
             if (isLoginMode) {
-                // En FastAPI OAuth2 generalmente se pide 'username' y 'password'
-                // Aqui mandamos como JSON pero dependiendo del backend podria necesitar form-data.
-                // Asumimos JSON personalizado por ahora:
-                const payload = {
-                    email: email, // O 'username: email' dependiendo de tu backend auth.py
-                    password: password
-                };
-                
+                const payload = { email, password };
                 const data = await authAPI.login(region, payload);
                 if (data.access_token) {
                     login(data.access_token);
-                    navigate('/'); // Root redirigirá según el rol
+                    navigate('/');
                 } else {
                     setError('Credenciales incorrectas');
                 }
             } else {
-                // Modo Registro
                 const payload = {
                     email,
                     password,
                     rol,
                     region,
-                    nombre,
+                    ...(rol !== 'admin' && { nombre }),
                     ...(rol === 'empresa' && { ruc }),
-                    ...(rol === 'ong' && { categorias_interes: 'General' }) // Simplificado
+                    ...(rol === 'ong' && { categorias_interes: 'General' })
                 };
+
                 const data = await authAPI.register(region, payload);
-                // Asumimos que el registro tambien devuelve un token, o pide hacer login luego
                 if (data.access_token) {
                     login(data.access_token);
                     navigate('/');
                 } else {
-                    // Si no devuelve token, pasamos a login
                     alert('Registro exitoso. Por favor, inicia sesión.');
                     setIsLoginMode(true);
                 }
@@ -70,7 +60,7 @@ const Login = () => {
         <div style={styles.container}>
             <div style={styles.card}>
                 <h2>{isLoginMode ? 'Iniciar Sesión' : 'Registro'} - Eco-Connect</h2>
-                
+
                 {error && <div style={styles.error}>{error}</div>}
 
                 <form onSubmit={handleSubmit} style={styles.form}>
@@ -100,13 +90,16 @@ const Login = () => {
                                 <select value={rol} onChange={(e) => setRol(e.target.value)} required style={styles.input}>
                                     <option value="empresa">Empresa</option>
                                     <option value="ong">ONG</option>
+                                    <option value="admin">Admin</option>
                                 </select>
                             </div>
 
-                            <div style={styles.inputGroup}>
-                                <label>Nombre de la Entidad</label>
-                                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={styles.input} />
-                            </div>
+                            {rol !== 'admin' && (
+                                <div style={styles.inputGroup}>
+                                    <label>Nombre de la Entidad</label>
+                                    <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={styles.input} />
+                                </div>
+                            )}
 
                             {rol === 'empresa' && (
                                 <div style={styles.inputGroup}>
@@ -124,7 +117,7 @@ const Login = () => {
 
                 <p style={styles.toggleText}>
                     {isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
-                    <button style={styles.toggleBtn} onClick={() => setIsLoginMode(!isLoginMode)}>
+                    <button type="button" style={styles.toggleBtn} onClick={() => setIsLoginMode(!isLoginMode)}>
                         {isLoginMode ? ' Registrate aquí' : ' Inicia sesión'}
                     </button>
                 </p>
