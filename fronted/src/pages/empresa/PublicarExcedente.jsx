@@ -31,7 +31,7 @@ const PublicarExcedente = () => {
                 ...formData,
                 cantidad: parseFloat(formData.cantidad),
                 estado: 'disponible',
-                empresaid: user?.empresa_id || 1
+                empresaid: user?.empresa_id
             };
 
             const region = user?.region?.toLowerCase();

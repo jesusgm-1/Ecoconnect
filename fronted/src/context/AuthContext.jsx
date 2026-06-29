@@ -32,7 +32,9 @@ export const AuthProvider = ({ children }) => {
         setUser({
             email: decoded.sub,
             rol: decoded.rol,
-            region: decoded.region
+            region: decoded.region,
+            empresa_id: decoded.empresa_id,
+            ong_id: decoded.ong_id
         });
     };
 
