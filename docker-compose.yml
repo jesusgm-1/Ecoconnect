@@ -7,15 +7,16 @@ services:
     environment:
       POSTGRES_USER: ecouser
       POSTGRES_PASSWORD: ecopassword
-      POSTGRES_DB: ecoconnect
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     networks:
       - eco_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ecouser -d ecoconnect"]
+      test: ["CMD-SHELL", "pg_isready -U ecouser -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -45,7 +46,7 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect_lima
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - REGION=lima
       - SECRET_KEY=ecoconnect_secret_2026
@@ -65,7 +66,7 @@ services:
     ports:
       - "8002:8002"
     environment:
-      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect_arequipa
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - REGION=arequipa
       - SECRET_KEY=ecoconnect_secret_2026
@@ -85,7 +86,7 @@ services:
     ports:
       - "8003:8003"
     environment:
-      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect
+      - DATABASE_URL=postgresql://ecouser:ecopassword@db:5432/ecoconnect_trujillo
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
       - REGION=trujillo
       - SECRET_KEY=ecoconnect_secret_2026
