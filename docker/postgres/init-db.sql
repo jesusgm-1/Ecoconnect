@@ -1,23 +1,3 @@
-SELECT 'CREATE DATABASE ecoconnect_lima'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM pg_database
-    WHERE datname = 'ecoconnect_lima'
-)
-\gexec
-
-SELECT 'CREATE DATABASE ecoconnect_arequipa'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM pg_database
-    WHERE datname = 'ecoconnect_arequipa'
-)
-\gexec
-
-SELECT 'CREATE DATABASE ecoconnect_trujillo'
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM pg_database
-    WHERE datname = 'ecoconnect_trujillo'
-)
-\gexec
+CREATE DATABASE ecoconnect_lima;
+CREATE DATABASE ecoconnect_arequipa;
+CREATE DATABASE ecoconnect_trujillo;
