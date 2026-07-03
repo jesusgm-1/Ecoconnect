@@ -46,10 +46,16 @@ const AdminDashboard = () => {
           ? transferenciasData
           : [];
 
+        console.log("[AdminDashboard] region", region);
+        console.log("[AdminDashboard] excedentes", items);
+        console.log("[AdminDashboard] transferencias", transferencias);
+
         const kgSalvados = transferencias.reduce(
           (acc, curr) => acc + (Number(curr.kg_transferidos) || 0),
           0,
         );
+
+        console.log("[AdminDashboard] kgSalvados", kgSalvados);
 
         const estadosCount = items.reduce((acc, curr) => {
           acc[curr.estado] = (acc[curr.estado] || 0) + 1;

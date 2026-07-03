@@ -24,6 +24,10 @@ def listar_todos(db: Session = Depends(get_db)):
 def listar_por_empresa(empresa_id: int, db: Session = Depends(get_db)):
     return excedente_controller.listar_excedentes_por_empresa(db, empresa_id)
 
+@router.get("/transferencias", response_model=List[TransferenciaResponse])
+def listar_transferencias(db: Session = Depends(get_db)):
+    return excedente_controller.listar_transferencias(db)
+
 @router.get("/{excedente_id}", response_model=ExcedenteResponse)
 def obtener(excedente_id: int, db: Session = Depends(get_db)):
     return excedente_controller.obtener_excedente(db, excedente_id)
@@ -35,7 +39,3 @@ def reclamar(excedente_id: int, ong_id: int, db: Session = Depends(get_db)):
 @router.put("/{excedente_id}/confirmar", response_model=ExcedenteResponse)
 def confirmar(excedente_id: int, empresa_id: int, db: Session = Depends(get_db)):
     return excedente_controller.confirmar_transferencia(db, excedente_id, empresa_id)
-
-@router.get("/transferencias", response_model=List[TransferenciaResponse])
-def listar_transferencias(db: Session = Depends(get_db)):
-    return excedente_controller.listar_transferencias(db)
