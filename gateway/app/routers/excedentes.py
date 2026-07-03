@@ -7,13 +7,21 @@ router = APIRouter(prefix="/excedentes", tags=["Excedentes"])
 async def listar(region: str):
     return await reenviar_peticion(region, "/excedentes/", "GET")
 
-@router.get("/{region}/{excedente_id}")
-async def obtener(region: str, excedente_id: int):
-    return await reenviar_peticion(region, f"/excedentes/{excedente_id}", "GET")
+@router.get("/{region}/todos")
+async def listar_todos(region: str):
+    return await reenviar_peticion(region, "/excedentes/todos", "GET")
 
 @router.get("/{region}/empresa/{empresa_id}")
 async def listar_por_empresa(region: str, empresa_id: int):
     return await reenviar_peticion(region, f"/excedentes/empresa/{empresa_id}", "GET")
+
+@router.get("/{region}/transferencias")
+async def listar_transferencias(region: str):
+    return await reenviar_peticion(region, "/excedentes/transferencias", "GET")
+
+@router.get("/{region}/{excedente_id}")
+async def obtener(region: str, excedente_id: int):
+    return await reenviar_peticion(region, f"/excedentes/{excedente_id}", "GET")
 
 @router.post("/{region}")
 async def crear(region: str, datos: dict):

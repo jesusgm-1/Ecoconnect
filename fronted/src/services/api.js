@@ -42,6 +42,14 @@ export const excedentesAPI = {
     const response = await api.get(`/excedentes/${region}`);
     return response.data;
   },
+  todos: async (region) => {
+    const response = await api.get(`/excedentes/${region}/todos`);
+    return response.data;
+  },
+  transferencias: async (region) => {
+    const response = await api.get(`/excedentes/${region}/transferencias`);
+    return response.data;
+  },
   porEmpresa: async (region, empresaId) => {
     const response = await api.get(`/excedentes/${region}/empresa/${empresaId}`);
     return response.data;

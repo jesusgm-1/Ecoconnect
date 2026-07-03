@@ -37,12 +37,17 @@ const AdminDashboard = () => {
           );
         }
 
-        const allData = await excedentesAPI.listar(region);
+        const [allData, transferenciasData] = await Promise.all([
+          excedentesAPI.todos(region),
+          excedentesAPI.transferencias(region),
+        ]);
         const items = Array.isArray(allData) ? allData : [];
+        const transferencias = Array.isArray(transferenciasData)
+          ? transferenciasData
+          : [];
 
-        const transferidos = items.filter((e) => e.estado === "transferido");
-        const kgSalvados = transferidos.reduce(
-          (acc, curr) => acc + (curr.unidad === "kg" ? curr.cantidad : 0),
+        const kgSalvados = transferencias.reduce(
+          (acc, curr) => acc + (Number(curr.kg_transferidos) || 0),
           0,
         );
 
@@ -93,7 +98,7 @@ const AdminDashboard = () => {
 
       <div style={styles.kpiContainer}>
         <div style={styles.kpiCard}>
-          <h3>Excedentes Publicados</h3>
+          <h3>Excedentes Registrados</h3>
           <p style={styles.kpiValue}>{stats.totalExcedentes}</p>
         </div>
         <div style={styles.kpiCard}>

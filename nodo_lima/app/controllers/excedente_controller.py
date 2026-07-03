@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.excedente import Excedente, EstadoExcedente
+from app.models.transferencia import Transferencia
 from app.views.excedente_schema import ExcedenteCreate
 from datetime import datetime
 from fastapi import HTTPException
@@ -15,6 +16,9 @@ def listar_excedentes(db: Session):
     return db.query(Excedente).filter(
         Excedente.estado == EstadoExcedente.disponible
     ).all()
+
+def listar_todos_excedentes(db: Session):
+    return db.query(Excedente).all()
 
 def obtener_excedente(db: Session, excedente_id: int):
     excedente = db.query(Excedente).filter(Excedente.id == excedente_id).first()
@@ -43,8 +47,6 @@ def confirmar_transferencia(db: Session, excedente_id: int, empresa_id: int):
 
     excedente.estado = EstadoExcedente.transferido
 
-    from app.models.transferencia import Transferencia
-
     transferencia = Transferencia(
         excedente_id=excedente_id,
         kg_transferidos=excedente.cantidad,
@@ -54,6 +56,9 @@ def confirmar_transferencia(db: Session, excedente_id: int, empresa_id: int):
     db.commit()
     db.refresh(excedente)
     return excedente
+
+def listar_transferencias(db: Session):
+    return db.query(Transferencia).order_by(Transferencia.fecha_transferencia.desc()).all()
 
 def verificar_vencidos(db: Session):
     ahora = datetime.utcnow()

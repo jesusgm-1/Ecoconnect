@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.controllers import excedente_controller
 from app.views.excedente_schema import ExcedenteCreate, ExcedenteResponse
+from app.views.transferencia_schema import TransferenciaResponse
 from typing import List
 
 router = APIRouter(prefix="/excedentes", tags=["Excedentes"])
@@ -14,6 +15,10 @@ def crear(datos: ExcedenteCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[ExcedenteResponse])
 def listar(db: Session = Depends(get_db)):
     return excedente_controller.listar_excedentes(db)
+
+@router.get("/todos", response_model=List[ExcedenteResponse])
+def listar_todos(db: Session = Depends(get_db)):
+    return excedente_controller.listar_todos_excedentes(db)
 
 @router.get("/empresa/{empresa_id}", response_model=List[ExcedenteResponse])
 def listar_por_empresa(empresa_id: int, db: Session = Depends(get_db)):
@@ -30,3 +35,7 @@ def reclamar(excedente_id: int, ong_id: int, db: Session = Depends(get_db)):
 @router.put("/{excedente_id}/confirmar", response_model=ExcedenteResponse)
 def confirmar(excedente_id: int, empresa_id: int, db: Session = Depends(get_db)):
     return excedente_controller.confirmar_transferencia(db, excedente_id, empresa_id)
+
+@router.get("/transferencias", response_model=List[TransferenciaResponse])
+def listar_transferencias(db: Session = Depends(get_db)):
+    return excedente_controller.listar_transferencias(db)
