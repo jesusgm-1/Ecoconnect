@@ -42,9 +42,17 @@ export const excedentesAPI = {
     const response = await api.get(`/excedentes/${region}`);
     return response.data;
   },
+  porEmpresa: async (region, empresaId) => {
+    const response = await api.get(`/excedentes/${region}/empresa/${empresaId}`);
+    return response.data;
+  },
   reclamar: async (region, excedenteId, ongId) => {
     // According to your gateway router: @router.put("/{region}/{excedente_id}/reclamar")
     const response = await api.put(`/excedentes/${region}/${excedenteId}/reclamar?ong_id=${ongId}`);
+    return response.data;
+  },
+  confirmar: async (region, excedenteId, empresaId) => {
+    const response = await api.put(`/excedentes/${region}/${excedenteId}/confirmar?empresa_id=${empresaId}`);
     return response.data;
   }
 };

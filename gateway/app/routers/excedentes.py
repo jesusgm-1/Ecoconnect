@@ -11,6 +11,10 @@ async def listar(region: str):
 async def obtener(region: str, excedente_id: int):
     return await reenviar_peticion(region, f"/excedentes/{excedente_id}", "GET")
 
+@router.get("/{region}/empresa/{empresa_id}")
+async def listar_por_empresa(region: str, empresa_id: int):
+    return await reenviar_peticion(region, f"/excedentes/empresa/{empresa_id}", "GET")
+
 @router.post("/{region}")
 async def crear(region: str, datos: dict):
     return await reenviar_peticion(region, "/excedentes/", "POST", datos)
@@ -19,4 +23,10 @@ async def crear(region: str, datos: dict):
 async def reclamar(region: str, excedente_id: int, ong_id: int):
     return await reenviar_peticion(
         region, f"/excedentes/{excedente_id}/reclamar?ong_id={ong_id}", "PUT"
+    )
+
+@router.put("/{region}/{excedente_id}/confirmar")
+async def confirmar(region: str, excedente_id: int, empresa_id: int):
+    return await reenviar_peticion(
+        region, f"/excedentes/{excedente_id}/confirmar?empresa_id={empresa_id}", "PUT"
     )

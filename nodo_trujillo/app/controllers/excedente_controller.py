@@ -22,11 +22,35 @@ def obtener_excedente(db: Session, excedente_id: int):
         raise HTTPException(status_code=404, detail="Excedente no encontrado")
     return excedente
 
+def listar_excedentes_por_empresa(db: Session, empresa_id: int):
+    return db.query(Excedente).filter(Excedente.empresa_id == empresa_id).all()
+
 def reclamar_excedente(db: Session, excedente_id: int, ong_id: int):
     excedente = obtener_excedente(db, excedente_id)
     if excedente.estado != EstadoExcedente.disponible:
         raise HTTPException(status_code=400, detail="El excedente no está disponible")
     excedente.estado = EstadoExcedente.bloqueado
+    db.commit()
+    db.refresh(excedente)
+    return excedente
+
+def confirmar_transferencia(db: Session, excedente_id: int, empresa_id: int):
+    excedente = obtener_excedente(db, excedente_id)
+    if excedente.empresa_id != empresa_id:
+        raise HTTPException(status_code=403, detail="No autorizado")
+    if excedente.estado != EstadoExcedente.bloqueado:
+        raise HTTPException(status_code=400, detail="El excedente no está bloqueado")
+
+    excedente.estado = EstadoExcedente.transferido
+
+    from app.models.transferencia import Transferencia
+
+    transferencia = Transferencia(
+        excedente_id=excedente_id,
+        kg_transferidos=excedente.cantidad,
+        estado="completada"
+    )
+    db.add(transferencia)
     db.commit()
     db.refresh(excedente)
     return excedente

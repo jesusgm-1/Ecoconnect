@@ -15,6 +15,10 @@ def crear(datos: ExcedenteCreate, db: Session = Depends(get_db)):
 def listar(db: Session = Depends(get_db)):
     return excedente_controller.listar_excedentes(db)
 
+@router.get("/empresa/{empresa_id}", response_model=List[ExcedenteResponse])
+def listar_por_empresa(empresa_id: int, db: Session = Depends(get_db)):
+    return excedente_controller.listar_excedentes_por_empresa(db, empresa_id)
+
 @router.get("/{excedente_id}", response_model=ExcedenteResponse)
 def obtener(excedente_id: int, db: Session = Depends(get_db)):
     return excedente_controller.obtener_excedente(db, excedente_id)
@@ -22,3 +26,7 @@ def obtener(excedente_id: int, db: Session = Depends(get_db)):
 @router.put("/{excedente_id}/reclamar", response_model=ExcedenteResponse)
 def reclamar(excedente_id: int, ong_id: int, db: Session = Depends(get_db)):
     return excedente_controller.reclamar_excedente(db, excedente_id, ong_id)
+
+@router.put("/{excedente_id}/confirmar", response_model=ExcedenteResponse)
+def confirmar(excedente_id: int, empresa_id: int, db: Session = Depends(get_db)):
+    return excedente_controller.confirmar_transferencia(db, excedente_id, empresa_id)

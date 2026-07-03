@@ -8,6 +8,7 @@ const EmpresaDashboard = () => {
     const [excedentes, setExcedentes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [accionEnCurso, setAccionEnCurso] = useState(null);
 
     useEffect(() => {
         const fetchExcedentes = async () => {
@@ -16,8 +17,11 @@ const EmpresaDashboard = () => {
                 if (!region) {
                     throw new Error('No se pudo determinar la región del usuario autenticado');
                 }
+                if (!user?.empresa_id) {
+                    throw new Error('No se pudo determinar la empresa del usuario autenticado');
+                }
 
-                const data = await excedentesAPI.listar(region);
+                const data = await excedentesAPI.porEmpresa(region, user.empresa_id);
                 setExcedentes(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error(err);
@@ -31,6 +35,28 @@ const EmpresaDashboard = () => {
             fetchExcedentes();
         }
     }, [user]);
+
+    const handleConfirmar = async (excedenteId) => {
+        try {
+            if (!user?.region || !user?.empresa_id) {
+                throw new Error('No se pudo determinar el contexto de autenticación');
+            }
+
+            setAccionEnCurso(excedenteId);
+            await excedentesAPI.confirmar(user.region.toLowerCase(), excedenteId, user.empresa_id);
+
+            const data = await excedentesAPI.porEmpresa(user.region.toLowerCase(), user.empresa_id);
+            setExcedentes(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+            setError('No se pudo confirmar la entrega');
+        } finally {
+            setAccionEnCurso(null);
+        }
+    };
+
+    const bloqueados = excedentes.filter((exc) => exc.estado === 'bloqueado');
+    const restantes = excedentes.filter((exc) => exc.estado !== 'bloqueado');
 
     if (loading) return <div>Cargando dashboard...</div>;
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
@@ -50,6 +76,8 @@ const EmpresaDashboard = () => {
 
                 {excedentes.length === 0 ? (
                     <p style={{ marginTop: '1rem', color: '#666' }}>No has publicado ningún excedente aún.</p>
+                ) : restantes.length === 0 ? (
+                    <p style={{ marginTop: '1rem', color: '#666' }}>No tienes excedentes disponibles para mostrar en esta sección.</p>
                 ) : (
                     <table style={styles.table}>
                         <thead>
@@ -62,7 +90,7 @@ const EmpresaDashboard = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {excedentes.map((exc) => (
+                            {restantes.map((exc) => (
                                 <tr key={exc.id} style={styles.tr}>
                                     <td style={styles.td}>{exc.id}</td>
                                     <td style={styles.td}>{exc.tipo_recurso}</td>
@@ -78,6 +106,50 @@ const EmpresaDashboard = () => {
                         </tbody>
                     </table>
                 )}
+
+                <div style={{ marginTop: '2rem' }}>
+                    <h3>Excedentes Bloqueados</h3>
+
+                    {bloqueados.length === 0 ? (
+                        <p style={{ marginTop: '1rem', color: '#666' }}>No tienes excedentes bloqueados pendientes de confirmación.</p>
+                    ) : (
+                        <table style={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th style={styles.th}>ID</th>
+                                    <th style={styles.th}>Tipo</th>
+                                    <th style={styles.th}>Cantidad</th>
+                                    <th style={styles.th}>Estado</th>
+                                    <th style={styles.th}>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {bloqueados.map((exc) => (
+                                    <tr key={exc.id} style={styles.tr}>
+                                        <td style={styles.td}>{exc.id}</td>
+                                        <td style={styles.td}>{exc.tipo_recurso}</td>
+                                        <td style={styles.td}>{exc.cantidad} {exc.unidad}</td>
+                                        <td style={styles.td}>
+                                            <span style={getEstadoStyle(exc.estado)}>
+                                                {exc.estado}
+                                            </span>
+                                        </td>
+                                        <td style={styles.td}>
+                                            <button
+                                                type="button"
+                                                style={styles.confirmBtn}
+                                                onClick={() => handleConfirmar(exc.id)}
+                                                disabled={accionEnCurso === exc.id}
+                                            >
+                                                {accionEnCurso === exc.id ? 'Confirmando...' : 'Confirmar Entrega'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
         </div>
     );
@@ -130,6 +202,15 @@ const styles = {
     },
     td: {
         padding: '1rem'
+    },
+    confirmBtn: {
+        backgroundColor: '#1565c0',
+        color: 'white',
+        border: 'none',
+        padding: '0.55rem 0.9rem',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontWeight: 'bold'
     }
 };
 
