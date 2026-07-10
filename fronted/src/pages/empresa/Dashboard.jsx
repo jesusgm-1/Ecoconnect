@@ -62,82 +62,92 @@ const EmpresaDashboard = () => {
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
     return (
-        <div>
-            <h2>Dashboard de Empresa</h2>
-            <p>Bienvenido. Región actual: <strong>{user?.region?.toUpperCase()}</strong></p>
+        <div className="page">
+            <div className="page-hero">
+                <div>
+                    <h2 className="page-title">Dashboard de Empresa</h2>
+                    <p className="page-subtitle">
+                        Región actual: <strong>{user?.region?.toUpperCase()}</strong> · administra tus publicaciones y confirma entregas.
+                    </p>
+                </div>
+                <Link to="/empresa/publicar" className="btn btn-primary">
+                    + Nuevo Excedente
+                </Link>
+            </div>
 
-            <div style={{ marginTop: '2rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3>Mis Excedentes Publicados</h3>
-                    <Link to="/empresa/publicar" style={styles.createBtn}>
-                        + Nuevo Excedente
-                    </Link>
+            <section className="card section-card card-hover">
+                <div className="toolbar" style={{ marginBottom: '1rem' }}>
+                    <h3 className="section-title" style={{ marginBottom: 0 }}>Mis Excedentes Publicados</h3>
                 </div>
 
                 {excedentes.length === 0 ? (
-                    <p style={{ marginTop: '1rem', color: '#666' }}>No has publicado ningún excedente aún.</p>
+                    <div className="empty-state">No has publicado ningún excedente aún.</div>
                 ) : restantes.length === 0 ? (
-                    <p style={{ marginTop: '1rem', color: '#666' }}>No tienes excedentes disponibles para mostrar en esta sección.</p>
+                    <div className="empty-state">No tienes excedentes disponibles para mostrar en esta sección.</div>
                 ) : (
-                    <table style={styles.table}>
-                        <thead>
-                            <tr>
-                                <th style={styles.th}>ID</th>
-                                <th style={styles.th}>Tipo</th>
-                                <th style={styles.th}>Cantidad</th>
-                                <th style={styles.th}>Estado</th>
-                                <th style={styles.th}>Fecha Límite</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {restantes.map((exc) => (
-                                <tr key={exc.id} style={styles.tr}>
-                                    <td style={styles.td}>{exc.id}</td>
-                                    <td style={styles.td}>{exc.tipo_recurso}</td>
-                                    <td style={styles.td}>{exc.cantidad} {exc.unidad}</td>
-                                    <td style={styles.td}>
-                                        <span style={getEstadoStyle(exc.estado)}>
-                                            {exc.estado}
-                                        </span>
-                                    </td>
-                                    <td style={styles.td}>{new Date(exc.fecha_limite).toLocaleDateString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-
-                <div style={{ marginTop: '2rem' }}>
-                    <h3>Excedentes Bloqueados</h3>
-
-                    {bloqueados.length === 0 ? (
-                        <p style={{ marginTop: '1rem', color: '#666' }}>No tienes excedentes bloqueados pendientes de confirmación.</p>
-                    ) : (
-                        <table style={styles.table}>
+                    <div className="table-wrap">
+                        <table className="table">
                             <thead>
                                 <tr>
-                                    <th style={styles.th}>ID</th>
-                                    <th style={styles.th}>Tipo</th>
-                                    <th style={styles.th}>Cantidad</th>
-                                    <th style={styles.th}>Estado</th>
-                                    <th style={styles.th}>Acción</th>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Límite</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {restantes.map((exc) => (
+                                    <tr key={exc.id}>
+                                        <td>{exc.id}</td>
+                                        <td>{exc.tipo_recurso}</td>
+                                        <td>{exc.cantidad} {exc.unidad}</td>
+                                        <td>
+                                            <span className={`status-badge status-${exc.estado}`}>
+                                                {exc.estado}
+                                            </span>
+                                        </td>
+                                        <td>{new Date(exc.fecha_limite).toLocaleDateString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </section>
+
+            <section className="card section-card card-hover">
+                <h3 className="section-title">Excedentes Bloqueados</h3>
+
+                {bloqueados.length === 0 ? (
+                    <div className="empty-state">No tienes excedentes bloqueados pendientes de confirmación.</div>
+                ) : (
+                    <div className="table-wrap">
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {bloqueados.map((exc) => (
-                                    <tr key={exc.id} style={styles.tr}>
-                                        <td style={styles.td}>{exc.id}</td>
-                                        <td style={styles.td}>{exc.tipo_recurso}</td>
-                                        <td style={styles.td}>{exc.cantidad} {exc.unidad}</td>
-                                        <td style={styles.td}>
-                                            <span style={getEstadoStyle(exc.estado)}>
+                                    <tr key={exc.id}>
+                                        <td>{exc.id}</td>
+                                        <td>{exc.tipo_recurso}</td>
+                                        <td>{exc.cantidad} {exc.unidad}</td>
+                                        <td>
+                                            <span className={`status-badge status-${exc.estado}`}>
                                                 {exc.estado}
                                             </span>
                                         </td>
-                                        <td style={styles.td}>
+                                        <td>
                                             <button
                                                 type="button"
-                                                style={styles.confirmBtn}
+                                                className="btn btn-info"
                                                 onClick={() => handleConfirmar(exc.id)}
                                                 disabled={accionEnCurso === exc.id}
                                             >
@@ -148,70 +158,11 @@ const EmpresaDashboard = () => {
                                 ))}
                             </tbody>
                         </table>
-                    )}
-                </div>
-            </div>
+                    </div>
+                )}
+            </section>
         </div>
     );
-};
-
-const getEstadoStyle = (estado) => {
-    const colorMap = {
-        disponible: '#4caf50',
-        transferido: '#2196f3',
-        bloqueado: '#ff9800',
-        vencido: '#f44336'
-    };
-
-    const color = colorMap[estado] ?? '#999';
-
-    return {
-        backgroundColor: color,
-        color: 'white',
-        padding: '0.2rem 0.5rem',
-        borderRadius: '12px',
-        fontSize: '0.8rem',
-        fontWeight: 'bold'
-    };
-};
-
-const styles = {
-    createBtn: {
-        backgroundColor: '#2e7d32',
-        color: 'white',
-        textDecoration: 'none',
-        padding: '0.5rem 1rem',
-        borderRadius: '4px',
-        fontWeight: 'bold'
-    },
-    table: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        marginTop: '1rem',
-        backgroundColor: '#fff',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-    },
-    th: {
-        padding: '1rem',
-        textAlign: 'left',
-        backgroundColor: '#f5f5f5',
-        borderBottom: '2px solid #ddd'
-    },
-    tr: {
-        borderBottom: '1px solid #ddd'
-    },
-    td: {
-        padding: '1rem'
-    },
-    confirmBtn: {
-        backgroundColor: '#1565c0',
-        color: 'white',
-        border: 'none',
-        padding: '0.55rem 0.9rem',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontWeight: 'bold'
-    }
 };
 
 export default EmpresaDashboard;

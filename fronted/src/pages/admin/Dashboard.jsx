@@ -46,16 +46,10 @@ const AdminDashboard = () => {
           ? transferenciasData
           : [];
 
-        console.log("[AdminDashboard] region", region);
-        console.log("[AdminDashboard] excedentes", items);
-        console.log("[AdminDashboard] transferencias", transferencias);
-
         const kgSalvados = transferencias.reduce(
           (acc, curr) => acc + (Number(curr.kg_transferidos) || 0),
           0,
         );
-
-        console.log("[AdminDashboard] kgSalvados", kgSalvados);
 
         const estadosCount = items.reduce((acc, curr) => {
           acc[curr.estado] = (acc[curr.estado] || 0) + 1;
@@ -96,30 +90,30 @@ const AdminDashboard = () => {
   if (loading) return <div>Generando métricas del sistema...</div>;
 
   return (
-    <div>
-      <h2>Panel de Administrador - {user?.region?.toUpperCase()}</h2>
-      <p>
-        Métricas en tiempo real sobre la economía circular en tu nodo regional.
-      </p>
-
-      <div style={styles.kpiContainer}>
-        <div style={styles.kpiCard}>
-          <h3>Excedentes Registrados</h3>
-          <p style={styles.kpiValue}>{stats.totalExcedentes}</p>
+    <div className="page">
+      <div className="page-hero">
+        <div>
+          <h2 className="page-title">Panel de Administrador - {user?.region?.toUpperCase()}</h2>
+          <p className="page-subtitle">Métricas en tiempo real sobre la economía circular en tu nodo regional.</p>
         </div>
-        <div style={styles.kpiCard}>
-          <h3>Kg Salvados (Transferidos)</h3>
-          <p style={{ ...styles.kpiValue, color: "#4caf50" }}>
+      </div>
+
+      <div className="kpi-grid">
+        <div className="card kpi-card card-hover">
+          <p className="kpi-title">Excedentes Registrados</p>
+          <p className="kpi-value">{stats.totalExcedentes}</p>
+        </div>
+        <div className="card kpi-card card-hover">
+          <p className="kpi-title">Kg Salvados (Transferidos)</p>
+          <p className="kpi-value" style={{ color: '#2e7d32' }}>
             {stats.totalKg.toFixed(2)} KG
           </p>
         </div>
       </div>
 
-      <div style={styles.chartsContainer}>
-        <div style={styles.chartBox}>
-          <h3 style={{ textAlign: "center", marginBottom: "1rem" }}>
-            Publicaciones por Tipo
-          </h3>
+      <div className="split-grid">
+        <div className="card chart-box card-hover">
+          <h3 className="section-title">Publicaciones por Tipo</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
               data={stats.tipoData}
@@ -129,15 +123,13 @@ const AdminDashboard = () => {
               <XAxis dataKey="name" />
               <YAxis allowDecimals={false} />
               <Tooltip />
-              <Bar dataKey="count" fill="#82ca9d" name="Cantidad" />
+              <Bar dataKey="count" fill="#2e7d32" name="Cantidad" />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div style={styles.chartBox}>
-          <h3 style={{ textAlign: "center", marginBottom: "1rem" }}>
-            Estado Actual de Excedentes
-          </h3>
+        <div className="card chart-box card-hover">
+          <h3 className="section-title">Estado Actual de Excedentes</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -167,40 +159,6 @@ const AdminDashboard = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  kpiContainer: {
-    display: "flex",
-    gap: "2rem",
-    marginTop: "2rem",
-    marginBottom: "2rem",
-  },
-  kpiCard: {
-    background: "#fff",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-    flex: 1,
-    textAlign: "center",
-  },
-  kpiValue: {
-    fontSize: "2.5rem",
-    fontWeight: "bold",
-    marginTop: "1rem",
-    color: "#333",
-  },
-  chartsContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(450px, 1fr))",
-    gap: "2rem",
-  },
-  chartBox: {
-    background: "#fff",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-  },
 };
 
 export default AdminDashboard;
