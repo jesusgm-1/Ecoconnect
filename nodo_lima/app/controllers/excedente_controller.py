@@ -2,11 +2,13 @@ from sqlalchemy.orm import Session
 from app.models.excedente import Excedente, EstadoExcedente
 from app.models.transferencia import Transferencia
 from app.views.excedente_schema import ExcedenteCreate
-from datetime import datetime
+from datetime import datetime, time
 from fastapi import HTTPException
 
 def crear_excedente(db: Session, datos: ExcedenteCreate):
-    excedente = Excedente(**datos.model_dump())
+    excedente_data = datos.model_dump()
+    excedente_data["fecha_limite"] = datetime.combine(excedente_data["fecha_limite"], time.min)
+    excedente = Excedente(**excedente_data)
     db.add(excedente)
     db.commit()
     db.refresh(excedente)

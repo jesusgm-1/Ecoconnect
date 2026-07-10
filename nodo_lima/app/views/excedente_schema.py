@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 
 class EstadoExcedente(str, Enum):
@@ -12,7 +12,7 @@ class ExcedenteCreate(BaseModel):
     tipo_recurso: str
     cantidad: float
     unidad: str
-    fecha_limite: datetime
+    fecha_limite: date
     ubicacion: str
     empresa_id: int
 
