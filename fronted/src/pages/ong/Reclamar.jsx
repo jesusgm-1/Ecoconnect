@@ -63,101 +63,54 @@ const OngReclamar = () => {
         }
     };
 
-    if (loading) return <div>Cargando información del recurso...</div>;
-    if (error) return <div style={{ color: 'red' }}>{error}</div>;
-    if (!excedente) return <div>No se encontró el recurso.</div>;
+    if (loading) return <div className="empty-state">Cargando información del recurso...</div>;
+    if (error) return <div className="notice notice-error">{error}</div>;
+    if (!excedente) return <div className="notice notice-warning">No se encontró el recurso.</div>;
 
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h2>Confirmar Reclamo</h2>
-                <p>Estás a punto de confirmar tu interés en recoger el siguiente recurso:</p>
+        <div className="page">
+            <div className="page-hero">
+                <div>
+                    <h2 className="page-title">Confirmar Reclamo</h2>
+                    <p className="page-subtitle">Revisa el recurso antes de reservarlo para tu organización.</p>
+                </div>
+            </div>
 
-                <div style={styles.detailBox}>
-                    <p><strong>Tipo:</strong> {excedente.tipo_recurso}</p>
-                    <p><strong>Cantidad a recibir:</strong> {excedente.cantidad} {excedente.unidad}</p>
-                    <p><strong>Ubicación de recojo:</strong> {excedente.ubicacion}</p>
-                    <p><strong>Fecha máxima:</strong> {new Date(excedente.fecha_limite).toLocaleDateString()}</p>
+            <section className="card form-card card-hover" style={{ width: 'min(100%, 640px)' }}>
+                <p className="helper-text">Estás a punto de confirmar tu interés en recoger el siguiente recurso:</p>
+
+                <div className="card section-card" style={{ background: '#f7f9fb', marginTop: '1rem' }}>
+                    <div className="form-grid" style={{ gap: '0.65rem' }}>
+                        <p><strong>Tipo:</strong> {excedente.tipo_recurso}</p>
+                        <p><strong>Cantidad a recibir:</strong> {excedente.cantidad} {excedente.unidad}</p>
+                        <p><strong>Ubicación de recojo:</strong> {excedente.ubicacion}</p>
+                        <p><strong>Fecha máxima:</strong> {new Date(excedente.fecha_limite).toLocaleDateString()}</p>
+                    </div>
                 </div>
 
-                <div style={styles.warningBox}>
+                <div className="notice notice-warning" style={{ marginTop: '1rem' }}>
                     <strong>Importante:</strong> Al confirmar, te comprometes a acercarte a la ubicación indicada cumpliendo los protocolos correspondientes antes de la fecha límite y de que el estado cambie.
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                <div className="actions-row" style={{ marginTop: '1.5rem' }}>
                     <button
                         onClick={() => navigate('/ong/feed')}
-                        style={styles.cancelBtn}
+                        className="btn btn-ghost"
                         disabled={claiming}
                     >
                         Volver
                     </button>
                     <button
                         onClick={handleConfirmar}
-                        style={styles.submitBtn}
+                        className="btn btn-info"
                         disabled={claiming}
                     >
                         {claiming ? 'Procesando...' : 'Confirmar Reclamo'}
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        paddingTop: '2rem'
-    },
-    card: {
-        background: '#fff',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '500px',
-    },
-    detailBox: {
-        backgroundColor: '#f5f5f5',
-        padding: '1.5rem',
-        borderRadius: '6px',
-        margin: '1.5rem 0',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem'
-    },
-    warningBox: {
-        backgroundColor: '#fff3cd',
-        color: '#c62828',
-        padding: '1rem',
-        borderRadius: '6px',
-        fontSize: '0.9rem',
-        borderLeft: '4px solid #c62828'
-    },
-    submitBtn: {
-        flex: 1,
-        padding: '0.75rem',
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        fontWeight: 'bold'
-    },
-    cancelBtn: {
-        flex: 1,
-        padding: '0.75rem',
-        backgroundColor: '#e0e0e0',
-        color: '#333',
-        border: 'none',
-        borderRadius: '4px',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        fontWeight: 'bold'
-    }
 };
 
 export default OngReclamar;
