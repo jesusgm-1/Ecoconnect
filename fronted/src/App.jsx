@@ -32,7 +32,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Navbar />
-        <main className="main-content" style={{ padding: '2rem' }}>
+        <main className="app-main">
           <Routes>
             <Route path="/" element={<HomeRedirect />} />
             <Route path="/login" element={<Login />} />

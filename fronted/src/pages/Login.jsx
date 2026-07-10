@@ -57,138 +57,107 @@ const Login = () => {
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h2>{isLoginMode ? 'Iniciar Sesión' : 'Registro'} - Eco-Connect</h2>
+        <div className="page">
+            <div className="split-grid" style={{ alignItems: 'stretch' }}>
+                <section className="card card-hover section-card" style={{ padding: '2rem' }}>
+                    <p className="helper-text" style={{ marginBottom: '0.5rem' }}>ODS 12 · Economía circular distribuida</p>
+                    <h2 className="page-title" style={{ marginBottom: '0.5rem' }}>
+                        {isLoginMode ? 'Bienvenido de nuevo' : 'Crear cuenta'}
+                    </h2>
+                    <p className="page-subtitle" style={{ marginBottom: '1.5rem' }}>
+                        Gestiona excedentes, transferencias y reclamaciones desde un solo lugar.
+                    </p>
 
-                {error && <div style={styles.error}>{error}</div>}
+                    {error && <div className="notice notice-error" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-                <form onSubmit={handleSubmit} style={styles.form}>
-                    <div style={styles.inputGroup}>
-                        <label>Región Nodo</label>
-                        <select value={region} onChange={(e) => setRegion(e.target.value)} required style={styles.input}>
-                            <option value="lima">Lima</option>
-                            <option value="arequipa">Arequipa</option>
-                            <option value="trujillo">Trujillo</option>
-                        </select>
-                    </div>
+                    <form onSubmit={handleSubmit} className="form-grid">
+                        <div className="field">
+                            <label>Región Nodo</label>
+                            <select value={region} onChange={(e) => setRegion(e.target.value)} required className="select">
+                                <option value="lima">Lima</option>
+                                <option value="arequipa">Arequipa</option>
+                                <option value="trujillo">Trujillo</option>
+                            </select>
+                        </div>
 
-                    <div style={styles.inputGroup}>
-                        <label>Email</label>
-                        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={styles.input} />
-                    </div>
+                        <div className="field">
+                            <label>Email</label>
+                            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="input" />
+                        </div>
 
-                    <div style={styles.inputGroup}>
-                        <label>Contraseña</label>
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
-                    </div>
+                        <div className="field">
+                            <label>Contraseña</label>
+                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="input" />
+                        </div>
 
-                    {!isLoginMode && (
-                        <>
-                            <div style={styles.inputGroup}>
-                                <label>Rol</label>
-                                <select value={rol} onChange={(e) => setRol(e.target.value)} required style={styles.input}>
-                                    <option value="empresa">Empresa</option>
-                                    <option value="ong">ONG</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-
-                            {rol !== 'admin' && (
-                                <div style={styles.inputGroup}>
-                                    <label>Nombre de la Entidad</label>
-                                    <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required style={styles.input} />
+                        {!isLoginMode && (
+                            <>
+                                <div className="field">
+                                    <label>Rol</label>
+                                    <select value={rol} onChange={(e) => setRol(e.target.value)} required className="select">
+                                        <option value="empresa">Empresa</option>
+                                        <option value="ong">ONG</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
                                 </div>
-                            )}
 
-                            {rol === 'empresa' && (
-                                <div style={styles.inputGroup}>
-                                    <label>RUC</label>
-                                    <input type="text" value={ruc} onChange={(e) => setRuc(e.target.value)} required style={styles.input} />
-                                </div>
-                            )}
-                        </>
-                    )}
+                                {rol !== 'admin' && (
+                                    <div className="field">
+                                        <label>Nombre de la Entidad</label>
+                                        <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required className="input" />
+                                    </div>
+                                )}
 
-                    <button type="submit" style={styles.button}>
-                        {isLoginMode ? 'Entrar' : 'Registrarse'}
-                    </button>
-                </form>
+                                {rol === 'empresa' && (
+                                    <div className="field">
+                                        <label>RUC</label>
+                                        <input type="text" value={ruc} onChange={(e) => setRuc(e.target.value)} required className="input" />
+                                    </div>
+                                )}
+                            </>
+                        )}
 
-                <p style={styles.toggleText}>
-                    {isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
-                    <button type="button" style={styles.toggleBtn} onClick={() => setIsLoginMode(!isLoginMode)}>
-                        {isLoginMode ? ' Registrate aquí' : ' Inicia sesión'}
-                    </button>
-                </p>
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                            {isLoginMode ? 'Entrar' : 'Registrarse'}
+                        </button>
+                    </form>
+
+                    <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+                        <p className="helper-text">
+                            {isLoginMode ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
+                        </p>
+                        <button type="button" className="btn btn-ghost" onClick={() => setIsLoginMode(!isLoginMode)}>
+                            {isLoginMode ? 'Regístrate aquí' : 'Inicia sesión'}
+                        </button>
+                    </div>
+                </section>
+
+                <aside className="card card-hover section-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'linear-gradient(180deg, #f3fbf4 0%, #ffffff 100%)' }}>
+                    <div>
+                        <div className="brand" style={{ marginBottom: '1rem' }}>
+                            <span className="brand-mark">🌱</span>
+                            <span>Eco-Connect</span>
+                        </div>
+                        <h3 className="section-title">Conecta donantes con ONGs en tu nodo regional</h3>
+                        <p className="page-subtitle">
+                            Publica excedentes, reclama recursos y confirma entregas con un flujo distribuido simple y trazable.
+                        </p>
+                    </div>
+
+                    <div className="kpi-grid" style={{ marginTop: '1.5rem' }}>
+                        <div className="card kpi-card" style={{ background: '#fffef7' }}>
+                            <p className="kpi-title">Rápido</p>
+                            <p className="helper-text">Registro y login por región</p>
+                        </div>
+                        <div className="card kpi-card" style={{ background: '#f4fbf5' }}>
+                            <p className="kpi-title">Seguro</p>
+                            <p className="helper-text">JWT y roles por perfil</p>
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '80vh',
-    },
-    card: {
-        background: '#fff',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        marginTop: '1.5rem',
-    },
-    inputGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        textAlign: 'left',
-    },
-    input: {
-        padding: '0.75rem',
-        borderRadius: '4px',
-        border: '1px solid #ccc',
-        fontSize: '1rem',
-    },
-    button: {
-        padding: '0.75rem',
-        backgroundColor: '#2e7d32',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        fontSize: '1rem',
-        cursor: 'pointer',
-        marginTop: '1rem',
-    },
-    error: {
-        color: 'red',
-        fontSize: '0.9rem',
-        marginTop: '1rem',
-        backgroundColor: '#ffebee',
-        padding: '0.5rem',
-        borderRadius: '4px',
-    },
-    toggleText: {
-        marginTop: '1.5rem',
-        fontSize: '0.9rem',
-    },
-    toggleBtn: {
-        background: 'none',
-        border: 'none',
-        color: '#1976d2',
-        cursor: 'pointer',
-        textDecoration: 'underline',
-        fontSize: '0.9rem',
-    }
 };
 
 export default Login;

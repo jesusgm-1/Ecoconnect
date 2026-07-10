@@ -11,74 +11,47 @@ const Navbar = () => {
     };
 
     return (
-        <nav style={styles.nav}>
-            <div style={styles.brand}>
-                <Link to="/" style={styles.link}>Eco-Connect</Link>
+        <nav className="nav">
+            <div className="nav-inner">
+                <Link to="/" className="brand">
+                    <span className="brand-mark">🌱</span>
+                    <span>Eco-Connect</span>
+                </Link>
+
+                {user ? (
+                    <div className="nav-links">
+                        <span className="user-chip">
+                            <span className="user-dot" />
+                            <span>{user.email} · {user.rol}</span>
+                        </span>
+
+                        {user.rol === 'empresa' && (
+                            <>
+                                <Link to="/empresa/dashboard" className="nav-pill">Mis Excedentes</Link>
+                                <Link to="/empresa/publicar" className="nav-pill">Publicar</Link>
+                            </>
+                        )}
+
+                        {user.rol === 'ong' && (
+                            <Link to="/ong/feed" className="nav-pill">Feed</Link>
+                        )}
+
+                        {user.rol === 'admin' && (
+                            <Link to="/admin/dashboard" className="nav-pill">Panel Admin</Link>
+                        )}
+
+                        <button onClick={handleLogout} className="btn btn-danger">
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                ) : (
+                    <div className="nav-links">
+                        <Link to="/login" className="nav-pill">Ingresar</Link>
+                    </div>
+                )}
             </div>
-
-            {user && (
-                <div style={styles.links}>
-                    <span style={styles.userInfo}>Hola, {user.email} ({user.rol})</span>
-
-                    {user.rol === 'empresa' && (
-                        <>
-                            <Link to="/empresa/dashboard" style={styles.link}>Mis Excedentes</Link>
-                            <Link to="/empresa/publicar" style={styles.link}>Publicar Excedente</Link>
-                        </>
-                    )}
-
-                    {user.rol === 'ong' && (
-                        <Link to="/ong/feed" style={styles.link}>Feed Disponibles</Link>
-                    )}
-
-                    {user.rol === 'admin' && (
-                        <Link to="/admin/dashboard" style={styles.link}>Panel Admin</Link>
-                    )}
-
-                    <button onClick={handleLogout} style={styles.logoutBtn}>Cerrar Sesión</button>
-                </div>
-            )}
         </nav>
     );
-};
-
-const styles = {
-    nav: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1rem 2rem',
-        backgroundColor: '#2e7d32',
-        color: '#fff'
-    },
-    brand: {
-        fontSize: '1.5rem',
-        fontWeight: 'bold'
-    },
-    links: {
-        display: 'flex',
-        gap: '1.5rem',
-        alignItems: 'center'
-    },
-    link: {
-        color: '#fff',
-        textDecoration: 'none',
-        fontWeight: '500'
-    },
-    userInfo: {
-        fontSize: '0.9rem',
-        opacity: 0.9,
-        marginRight: '1rem'
-    },
-    logoutBtn: {
-        backgroundColor: '#d32f2f',
-        color: 'white',
-        border: 'none',
-        padding: '0.5rem 1rem',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontWeight: 'bold'
-    }
 };
 
 export default Navbar;
